@@ -13,9 +13,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  CLIENT
+  NUTRITIONIST
+  ADMIN
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CANCELED
+  COMPLETED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  password      String
+  password  String
+  role      Role     @default(CLIENT)
   createdAt DateTime @default(now())
+
+  clientAppointments Appointment[]
+  availabilities     Availability[]
+}
+
+model Appointment {
+  id             Int @id @default(autoincrement())
+  availabilityId Int @unique
+  clientId       Int
+
+  status AppointmentStatus @default(SCHEDULED)
+
+  availability Availability @relation(fields: [availabilityId], references: [id])
+  client       User         @relation(fields: [clientId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Availability {
+  id             Int @id @default(autoincrement())
+  nutritionistId Int
+
+  date      DateTime
+  startTime DateTime
+  endTime   DateTime
+
+  isBooked Boolean @default(false)
+
+  nutritionist User         @relation(fields: [nutritionistId], references: [id])
+  appointment  Appointment?
+
+  @@index([nutritionistId, date])
 }

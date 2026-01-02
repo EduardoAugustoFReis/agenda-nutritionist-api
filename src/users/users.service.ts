@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { HashingService } from 'src/common/hash/hash.service';
@@ -25,6 +29,7 @@ export class UsersService {
         id: true,
         email: true,
         createdAt: true,
+        role: true,
       },
     });
 
@@ -43,6 +48,7 @@ export class UsersService {
           id: true,
           email: true,
           createdAt: true,
+          role: true,
         },
       }),
     ]);
@@ -63,6 +69,7 @@ export class UsersService {
         id: true,
         email: true,
         createdAt: true,
+        role: true,
       },
     });
 
@@ -110,9 +117,42 @@ export class UsersService {
         id: true,
         email: true,
         createdAt: true,
+        role: true,
       },
     });
 
     return { message: 'Usuário atualizado', updatedUser };
   };
+
+  async promoteToNutritionist(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    if (user.role === 'NUTRITIONIST') {
+      throw new BadRequestException('Usuário já é nutricionista');
+    }
+
+    if (user.role === 'ADMIN') {
+      throw new BadRequestException('ADMIN não pode ser rebaixado/promovido');
+    }
+
+    const update = await this.prismaService.user.update({
+      where: { id: userId },
+      data: {
+        role: 'NUTRITIONIST',
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    return { message: 'Promovido a nutricionista', update };
+  }
 }

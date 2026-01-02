@@ -8,10 +8,14 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -43,5 +47,12 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Patch(':id/promote-to-nutritionist')
+  promoteToNutritionist(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.promoteToNutritionist(id);
   }
 }
