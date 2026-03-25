@@ -7,21 +7,19 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: nest_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    image: node:20
+    build: .
     container_name: nest_api
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: npm run start:dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       - postgres
+    env_file:
+      - .env
 
 volumes:
   postgres_data:

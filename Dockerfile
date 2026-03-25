@@ -30,9 +30,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# instala antes de rodar qualquer coisa
+RUN apk add --no-cache bash netcat-openbsd
+
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
+COPY wait-for-db.sh .
+
+
 EXPOSE 3000
-CMD ["node", "dist/src/main.js"]
+
+CMD ["sh", "wait-for-db.sh"]
+
