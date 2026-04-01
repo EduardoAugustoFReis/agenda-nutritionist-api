@@ -9,7 +9,9 @@ WORKDIR /app
 COPY package*.json ./
 
 # 2️⃣ Prisma schema (OBRIGATÓRIO antes do generate)
-COPY prisma ./prisma
+COPY . .
+
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/dummy"
 
 RUN npm ci
 
