@@ -36,11 +36,12 @@ RUN apk add --no-cache bash netcat-openbsd
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 COPY wait-for-db.sh .
 
 
 EXPOSE 3000
 
-CMD ["sh", "wait-for-db.sh"]
+CMD ["sh", "-c", "./wait-for-db.sh postgres:5432 -- npx prisma migrate deploy && node dist/main.js"]
 
