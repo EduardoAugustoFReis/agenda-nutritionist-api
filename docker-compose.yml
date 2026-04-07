@@ -20,6 +20,7 @@ services:
       - postgres
     env_file:
       - .env
+    restart: unless-stopped
 
 volumes:
   postgres_data:
